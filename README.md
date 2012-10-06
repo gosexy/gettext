@@ -11,7 +11,7 @@ The GNU C library. If you're using GNU/Linux, FreeBSD or OSX you should already 
 Just pull from the repository:
 
 ```sh
-$ go get github.com/gosexy/gettex
+% go get github.com/gosexy/gettext
 ```
 
 ## Usage
@@ -52,12 +52,15 @@ You can read ``gosexy/gettext`` documentation from a terminal
 % go doc github.com/gosexy/gettext
 ```
 
-The original gettext documentation can be very useful too:
+Or you can [browse it](http://go.pkgdoc.org/github.com/gosexy/gettext) online.
+
+The original gettext documentation could be very useful as well:
 
 ```go
 % man 3 gettext
 ```
 
-Or you can [browse it](http://go.pkgdoc.org/github.com/gosexy/gettext) online.
+Here's another [good tutorial][2] on using gettext.
 
 [1]: http://www.gnu.org/software/gettext/
+[2]: http://oriya.sarovar.org/docs/gettext_single.html
