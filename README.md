@@ -44,6 +44,28 @@ You can use ``os.Setenv`` to set the ``LANGUAGE`` environment variable or set it
 % ./gettext-program
 ```
 
+Note that ``xgettext`` does not officially support Go syntax yet, however, you can generate a valid ``.pot`` file by forcing
+``xgettest`` to use the C++ syntax:
+
+``sh
+% xgettext -d example -s gettext_test.go -o example.pot -L c++ -i --keyword=NGettext:1,2 --keyword=Gettext
+``
+
+This will generate a ``example.pot`` file.
+
+After translating the .pot file, you must generate .po and .mo files and remember to set the UTF-8 charset.
+
+``sh
+% msginit -l es_MX -o example.po -i example.pot
+% msgfmt -c -v -o example.mo example.po
+``
+
+Finally, move the .mo file to an appropriate location.
+
+``sh
+% mv example.mo examples/es_MX.utf8/LC_MESSAGES/example.mo
+``
+
 ## Documentation
 
 You can read ``gosexy/gettext`` documentation from a terminal

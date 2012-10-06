@@ -14,9 +14,11 @@ import (
 
 	% xgettext -d example -s gettext_test.go -o example.pot -L c++ -i --keyword=NGettext:1,2 --keyword=Gettext
 
-	This will generate a example.pot file. Remember to set the UTF-8 charset.
+	This will generate a example.pot file.
 
 	After translating the .pot file, you must generate .po and .mo files.
+
+	Remember to set the UTF-8 charset.
 
 	% msginit -l es_MX -o example.po -i example.pot
 	% msgfmt -c -v -o example.mo example.po
