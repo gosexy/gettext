@@ -30,6 +30,11 @@ package gettext
 */
 import "C"
 
+import (
+	"fmt"
+	"strings"
+)
+
 var (
 	// For all of the locale.
 	LC_ALL = uint(C.LC_ALL)
@@ -93,6 +98,23 @@ func DCGettext(domain string, msgid string, category uint) string {
 // of the translation in a message catalog.
 func NGettext(msgid string, msgid_plural string, n uint64) string {
 	return C.GoString(C.ngettext(C.CString(msgid), C.CString(msgid_plural), C.ulong(n)))
+}
+
+// Like fmt.Sprintf() but without %!(EXTRA) errors.
+func Sprintf(format string, a ...interface{}) string {
+	expects := strings.Count(format, "%") - strings.Count(format, "%%")
+
+	if expects > 0 {
+		arguments := make([]interface{}, expects)
+		for i := 0; i < expects; i++ {
+			if len(a) > i {
+				arguments[i] = a[i]
+			}
+		}
+		return fmt.Sprintf(format, arguments...)
+	}
+
+	return format
 }
 
 // Like NGettext(), but looking up the message in the specified domain.
