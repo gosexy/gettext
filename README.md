@@ -1,4 +1,4 @@
-## gosexy/gettext
+# gosexy/gettext
 
 Go bindings for [GNU gettext][1], an internationalization and localization
 library for writing multilingual systems.
