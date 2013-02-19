@@ -27,22 +27,26 @@ package gettext
 
 #include <libintl.h>
 #include <locale.h>
+#include <stdlib.h>
 */
 import "C"
 
 import (
 	"fmt"
 	"strings"
+	"unsafe"
 )
 
 var (
 	// For all of the locale.
 	LC_ALL = uint(C.LC_ALL)
 
-	// For regular expression matching (it determines the meaning of range expressions and equivalence classes) and string collation.
+	// For regular expression matching (it determines the meaning of range
+	// expressions and equivalence classes) and string collation.
 	LC_COLATE = uint(C.LC_ALL)
 
-	// For regular expression matching, character classification, conversion, case-sensitive comparison, and wide character functions.
+	// For regular expression matching, character classification, conversion,
+	// case-sensitive comparison, and wide character functions.
 	LC_CTYPE = uint(C.LC_CTYPE)
 
 	// For localizable natural-language messages.
@@ -51,7 +55,8 @@ var (
 	// For monetary formatting.
 	LC_MONETARY = uint(C.LC_MONETARY)
 
-	// For number formatting (such as the decimal point and the thousands separator).
+	// For number formatting (such as the decimal point and the thousands
+	// separator).
 	LC_NUMERIC = uint(C.LC_NUMERIC)
 
 	// For time and date formatting.
@@ -60,44 +65,97 @@ var (
 
 // Sets or queries the program's current locale.
 func SetLocale(category uint, locale string) string {
-	return C.GoString(C.setlocale(C.int(category), C.CString(locale)))
+	clocale := C.CString(locale)
+
+	res := C.GoString(C.setlocale(C.int(category), clocale))
+
+	C.free(unsafe.Pointer(clocale))
+	return res
 }
 
 // Sets directory containing message catalogs.
 func BindTextdomain(domainname string, dirname string) string {
-	return C.GoString(C.bindtextdomain(C.CString(domainname), C.CString(dirname)))
+	cdirname := C.CString(dirname)
+	cdomainname := C.CString(domainname)
+
+	res := C.GoString(C.bindtextdomain(cdomainname, cdirname))
+
+	C.free(unsafe.Pointer(cdirname))
+	C.free(unsafe.Pointer(cdomainname))
+	return res
 }
 
 // Sets the output codeset for message catalogs for domain domainname.
 func BindTextdomainCodeset(domainname string, codeset string) string {
-	return C.GoString(C.bind_textdomain_codeset(C.CString(domainname), C.CString(codeset)))
+	cdomainname := C.CString(domainname)
+	ccodeset := C.CString(codeset)
+
+	res := C.GoString(C.bind_textdomain_codeset(cdomainname, ccodeset))
+
+	C.free(unsafe.Pointer(cdomainname))
+	C.free(unsafe.Pointer(ccodeset))
+	return res
 }
 
 // Sets or retrieves the current message domain.
 func Textdomain(domainname string) string {
-	return C.GoString(C.textdomain(C.CString(domainname)))
+	cdomainname := C.CString(domainname)
+
+	res := C.GoString(C.textdomain(cdomainname))
+
+	C.free(unsafe.Pointer(cdomainname))
+	return res
 }
 
-// Attempt to translate a text string into the user's native language, by looking up the translation in a message
-// catalog.
+// Attempt to translate a text string into the user's native language, by
+// looking up the translation in a message catalog.
 func Gettext(msgid string) string {
-	return C.GoString(C.gettext(C.CString(msgid)))
+	cmsgid := C.CString(msgid)
+
+	res := C.GoString(C.gettext(cmsgid))
+
+	C.free(unsafe.Pointer(cmsgid))
+	return res
 }
 
 // Like Gettext(), but looking up the message in the specified domain.
 func DGettext(domain string, msgid string) string {
-	return C.GoString(C.dgettext(C.CString(domain), C.CString(msgid)))
+	cdomain := C.CString(domain)
+	cmsgid := C.CString(msgid)
+
+	res := C.GoString(C.dgettext(cdomain, cmsgid))
+
+	C.free(unsafe.Pointer(cdomain))
+	C.free(unsafe.Pointer(cmsgid))
+	return res
 }
 
-// Like Gettext(), but looking up the message in the specified domain and category.
+// Like Gettext(), but looking up the message in the specified domain and
+// category.
 func DCGettext(domain string, msgid string, category uint) string {
-	return C.GoString(C.dcgettext(C.CString(domain), C.CString(msgid), C.int(category)))
+	cdomain := C.CString(domain)
+	cmsgid := C.CString(msgid)
+
+	res := C.GoString(C.dcgettext(cdomain, cmsgid, C.int(category)))
+
+	C.free(unsafe.Pointer(cdomain))
+	C.free(unsafe.Pointer(cmsgid))
+	return res
 }
 
-// Attempt to translate a text string into the user's native language, by looking up the appropriate plural form
-// of the translation in a message catalog.
+// Attempt to translate a text string into the user's native language, by
+// looking up the appropriate plural form of the translation in a message
+// catalog.
 func NGettext(msgid string, msgid_plural string, n uint64) string {
-	return C.GoString(C.ngettext(C.CString(msgid), C.CString(msgid_plural), C.ulong(n)))
+	cmsgid := C.CString(msgid)
+	cmsgid_plural := C.CString(msgid_plural)
+
+	res := C.GoString(C.ngettext(cmsgid, cmsgid_plural, C.ulong(n)))
+
+	C.free(unsafe.Pointer(cmsgid))
+	C.free(unsafe.Pointer(cmsgid_plural))
+
+	return res
 }
 
 // Like fmt.Sprintf() but without %!(EXTRA) errors.
@@ -119,10 +177,31 @@ func Sprintf(format string, a ...interface{}) string {
 
 // Like NGettext(), but looking up the message in the specified domain.
 func DNGettext(domainname string, msgid string, msgid_plural string, n uint64) string {
-	return C.GoString(C.dngettext(C.CString(domainname), C.CString(msgid), C.CString(msgid_plural), C.ulong(n)))
+	cdomainname := C.CString(domainname)
+	cmsgid := C.CString(msgid)
+	cmsgid_plural := C.CString(msgid_plural)
+
+	res := C.GoString(C.dngettext(cdomainname, cmsgid, cmsgid_plural, C.ulong(n)))
+
+	C.free(unsafe.Pointer(cdomainname))
+	C.free(unsafe.Pointer(cmsgid))
+	C.free(unsafe.Pointer(cmsgid_plural))
+
+	return res
 }
 
-// Like NGettext(), but looking up the message in the specified domain and category.
+// Like NGettext(), but looking up the message in the specified domain and
+// category.
 func DCNGettext(domainname string, msgid string, msgid_plural string, n uint64, category uint) string {
-	return C.GoString(C.dcngettext(C.CString(domainname), C.CString(msgid), C.CString(msgid_plural), C.ulong(n), C.int(category)))
+	cdomainname := C.CString(domainname)
+	cmsgid := C.CString(msgid)
+	cmsgid_plural := C.CString(msgid_plural)
+
+	res := C.GoString(C.dcngettext(cdomainname, cmsgid, cmsgid_plural, C.ulong(n), C.int(category)))
+
+	C.free(unsafe.Pointer(cdomainname))
+	C.free(unsafe.Pointer(cmsgid))
+	C.free(unsafe.Pointer(cmsgid_plural))
+
+	return res
 }
