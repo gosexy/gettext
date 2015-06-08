@@ -128,3 +128,36 @@ func TestGermanDeutschland(t *testing.T) {
 	}
 
 }
+
+func TestDGettextFallback(t *testing.T) {
+	os.Setenv("LANGUAGE", "de_DE.utf8")
+
+	SetLocale(LC_ALL, "")
+	BindTextdomain("example", "./examples/")
+	Textdomain("example")
+
+	t1 := DGettext("", "Hello, world!")
+
+	fmt.Println(t1)
+
+	if t1 != "Hallo, Welt!" {
+		t.Errorf("Failed translation fallback.")
+	}
+
+	t2 := Sprintf(DNGettext("", "An apple", "%d apples", 1), 1, "garbage")
+
+	fmt.Println(t2)
+
+	if t2 != "Ein Apfel" {
+		t.Errorf("Failed translation fallback.")
+	}
+
+	t3 := Sprintf(DNGettext("", "An apple", "%d apples", 3), 3)
+
+	fmt.Println(t3)
+
+	if t3 != "3 Äpfel" {
+		t.Errorf("Failed translation fallback.")
+	}
+
+}
