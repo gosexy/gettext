@@ -120,7 +120,7 @@ func Gettext(msgid string) string {
 
 // Like Gettext(), but looking up the message in the specified domain.
 func DGettext(domain string, msgid string) string {
-	cdomain := C.CString(domain)
+	cdomain := cDomainName(domain)
 	cmsgid := C.CString(msgid)
 
 	res := C.GoString(C.dgettext(cdomain, cmsgid))
@@ -133,7 +133,7 @@ func DGettext(domain string, msgid string) string {
 // Like Gettext(), but looking up the message in the specified domain and
 // category.
 func DCGettext(domain string, msgid string, category uint) string {
-	cdomain := C.CString(domain)
+	cdomain := cDomainName(domain)
 	cmsgid := C.CString(msgid)
 
 	res := C.GoString(C.dcgettext(cdomain, cmsgid, C.int(category)))
@@ -177,7 +177,7 @@ func Sprintf(format string, a ...interface{}) string {
 
 // Like NGettext(), but looking up the message in the specified domain.
 func DNGettext(domainname string, msgid string, msgid_plural string, n uint64) string {
-	cdomainname := C.CString(domainname)
+	cdomainname := cDomainName(domainname)
 	cmsgid := C.CString(msgid)
 	cmsgid_plural := C.CString(msgid_plural)
 
@@ -193,7 +193,7 @@ func DNGettext(domainname string, msgid string, msgid_plural string, n uint64) s
 // Like NGettext(), but looking up the message in the specified domain and
 // category.
 func DCNGettext(domainname string, msgid string, msgid_plural string, n uint64, category uint) string {
-	cdomainname := C.CString(domainname)
+	cdomainname := cDomainName(domainname)
 	cmsgid := C.CString(msgid)
 	cmsgid_plural := C.CString(msgid_plural)
 
@@ -204,4 +204,12 @@ func DCNGettext(domainname string, msgid string, msgid_plural string, n uint64, 
 	C.free(unsafe.Pointer(cmsgid_plural))
 
 	return res
+}
+
+// cDomainName returns the domain name CString that can be nil.
+func cDomainName(domain string) *C.char {
+	if domain == "" {
+		return nil
+	}
+	return C.CString(domain)
 }
