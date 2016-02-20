@@ -119,19 +119,42 @@ func constructValue(val interface{}) string {
 
 func inspectNodeForTranslations(fset *token.FileSet, f *ast.File, n ast.Node) bool {
 	// FIXME: this assume we always have a "gettext.Gettext" style keyword
+	var gettextSelector, gettextFuncName string
 	l := strings.Split(opts.Keyword, ".")
-	gettextSelector := l[0]
-	gettextFuncName := l[1]
 
+	if len(l) > 1 {
+		gettextSelector = l[0]
+		gettextFuncName = l[1]
+	} else {
+		gettextFuncName = l[0]
+	}
+
+	var gettextSelectorPlural, gettextFuncNamePlural string
 	l = strings.Split(opts.KeywordPlural, ".")
-	gettextSelectorPlural := l[0]
-	gettextFuncNamePlural := l[1]
+
+	if len(l) > 1 {
+		gettextSelectorPlural = l[0]
+		gettextFuncNamePlural = l[1]
+	} else {
+		gettextFuncNamePlural = l[0]
+	}
 
 	switch x := n.(type) {
 	case *ast.CallExpr:
-		if sel, ok := x.Fun.(*ast.SelectorExpr); ok {
-			i18nStr := ""
-			i18nStrPlural := ""
+		var i18nStr, i18nStrPlural string
+		//if sel, ok := x.Fun.(*ast.Ident); ok {
+
+		//}
+		switch sel := x.Fun.(type) {
+		case *ast.Ident:
+			if sel.Name == gettextFuncNamePlural {
+				i18nStr = x.Args[0].(*ast.BasicLit).Value
+				i18nStrPlural = x.Args[1].(*ast.BasicLit).Value
+			}
+			if sel.Name == gettextFuncName {
+				i18nStr = constructValue(x.Args[0])
+			}
+		case *ast.SelectorExpr:
 			if sel.Sel.Name == gettextFuncNamePlural && sel.X.(*ast.Ident).Name == gettextSelectorPlural {
 				i18nStr = x.Args[0].(*ast.BasicLit).Value
 				i18nStrPlural = x.Args[1].(*ast.BasicLit).Value
@@ -140,45 +163,47 @@ func inspectNodeForTranslations(fset *token.FileSet, f *ast.File, n ast.Node) bo
 			if sel.Sel.Name == gettextFuncName && sel.X.(*ast.Ident).Name == gettextSelector {
 				i18nStr = constructValue(x.Args[0])
 			}
-
-			formatI18nStr := func(s string) string {
-				if s == "" {
-					return ""
-				}
-				// the "`" is special
-				if s[0] == '`' {
-					// replace inner " with \"
-					s = strings.Replace(s, "\"", "\\\"", -1)
-					// replace \n with \\n
-					s = strings.Replace(s, "\n", "\\n", -1)
-				}
-				// strip leading and trailing " (or `)
-				s = s[1 : len(s)-1]
-				return s
-			}
-
-			// FIXME: too simplistic(?), no %% is considered
-			formatHint := ""
-			if strings.Contains(i18nStr, "%") || strings.Contains(i18nStrPlural, "%") {
-				// well, not quite correct but close enough
-				formatHint = "c-format"
-			}
-
-			if i18nStr != "" {
-				msgidStr := formatI18nStr(i18nStr)
-				posCall := fset.Position(n.Pos())
-				msgIDs[msgidStr] = append(msgIDs[msgidStr], msgID{
-					formatHint:  formatHint,
-					msgidPlural: formatI18nStr(i18nStrPlural),
-					fname:       posCall.Filename,
-					line:        posCall.Line,
-					comment:     findCommentsForTranslation(fset, f, posCall),
-				})
-			}
 		}
+
+		if i18nStr == "" {
+			break
+		}
+
+		// FIXME: too simplistic(?), no %% is considered
+		formatHint := ""
+		if strings.Contains(i18nStr, "%") || strings.Contains(i18nStrPlural, "%") {
+			// well, not quite correct but close enough
+			formatHint = "c-format"
+		}
+
+		msgidStr := formatI18nStr(i18nStr)
+		posCall := fset.Position(n.Pos())
+		msgIDs[msgidStr] = append(msgIDs[msgidStr], msgID{
+			formatHint:  formatHint,
+			msgidPlural: formatI18nStr(i18nStrPlural),
+			fname:       posCall.Filename,
+			line:        posCall.Line,
+			comment:     findCommentsForTranslation(fset, f, posCall),
+		})
 	}
 
 	return true
+}
+
+func formatI18nStr(s string) string {
+	if s == "" {
+		return ""
+	}
+	// the "`" is special
+	if s[0] == '`' {
+		// replace inner " with \"
+		s = strings.Replace(s, "\"", "\\\"", -1)
+		// replace \n with \\n
+		s = strings.Replace(s, "\n", "\\n", -1)
+	}
+	// strip leading and trailing " (or `)
+	s = s[1 : len(s)-1]
+	return s
 }
 
 func processFiles(args []string) error {
