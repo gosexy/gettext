@@ -1,163 +1,62 @@
 package gettext
 
 import (
-	"fmt"
-	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-/*
-	NOTE:
+const (
+	spanishMexico      = "es_MX.utf8"
+	deutschDeutschland = "de_DE.utf8"
+	frenchFrance       = "fr_FR.utf8"
+)
 
-	xgettext does not officially support Go syntax, however, you can generate a valid .pot file by forcing
-	xgettest to use the C++ syntax:
+func TestSpanish(t *testing.T) {
+	SetLocale(LcAll, spanishMexico)
 
-	% xgettext -d example -s gettext_test.go -o example.pot -L c++ -i --keyword=NGettext:1,2 --keyword=Gettext
+	textDomain := "example"
 
-	This will generate a example.pot file.
+	BindTextdomain(textDomain, "_examples/")
+	Textdomain(textDomain)
 
-	After translating the .pot file, you must generate .po and .mo files.
+	assert.Equal(t, "¡Hola mundo!", Gettext("Hello, world!"))
 
-	Remember to set the UTF-8 charset.
+	assert.Equal(t, "Una manzana", Sprintf(NGettext("An apple", "%d apples", 1), 1, "garbage"))
 
-	% msginit -l es_MX -o example.po -i example.pot
-	% msgfmt -c -v -o example.mo example.po
+	assert.Equal(t, "3 manzanas", Sprintf(NGettext("An apple", "%d apples", 3), 3))
 
-	And finally, move the .mo file to an appropriate location.
+	assert.Equal(t, "Buenos días", Gettext("Good morning"))
 
-	% mv example.mo examples/es_MX.utf8/LC_MESSAGES/example.mo
-
-*/
-
-func TestSpanishMexico(t *testing.T) {
-
-	os.Setenv("LANGUAGE", "es_MX.utf8")
-
-	SetLocale(LC_ALL, "")
-	BindTextdomain("example", "./examples/")
-	Textdomain("example")
-
-	t1 := Gettext("Hello, world!")
-
-	fmt.Println(t1)
-
-	if t1 != "¡Hola mundo!" {
-		t.Errorf("Failed translation.")
-	}
-
-	t2 := Sprintf(NGettext("An apple", "%d apples", 1), 1, "garbage")
-
-	fmt.Println(t2)
-
-	if t2 != "Una manzana" {
-		t.Errorf("Failed translation.")
-	}
-
-	t3 := Sprintf(NGettext("An apple", "%d apples", 3), 3)
-
-	fmt.Println(t3)
-
-	if t3 != "3 manzanas" {
-		t.Errorf("Failed translation.")
-	}
-
-	t4 := Gettext("Good morning")
-
-	fmt.Println(t4)
-
-	if t4 != "Buenos días" {
-		t.Errorf("Failed translation.")
-	}
-
-	t5 := Gettext("Good bye!")
-
-	fmt.Println(t5)
-
-	if t5 != "¡Hasta luego!" {
-		t.Errorf("Failed translation.")
-	}
-
+	assert.Equal(t, "¡Hasta luego!", Gettext("Good bye!"))
 }
 
-func TestGermanDeutschland(t *testing.T) {
+func TestDeutsch(t *testing.T) {
+	SetLocale(LcAll, deutschDeutschland)
 
-	os.Setenv("LANGUAGE", "de_DE.utf8")
+	assert.Equal(t, "Hallo, Welt!", Gettext("Hello, world!"))
 
-	SetLocale(LC_ALL, "")
-	BindTextdomain("example", "./examples/")
-	Textdomain("example")
+	assert.Equal(t, "Ein Apfel", Sprintf(NGettext("An apple", "%d apples", 1), 1, "garbage"))
 
-	t1 := Gettext("Hello, world!")
+	assert.Equal(t, "3 Äpfel", Sprintf(NGettext("An apple", "%d apples", 3), 3))
 
-	fmt.Println(t1)
+	assert.Equal(t, "Guten morgen", Gettext("Good morning"))
 
-	if t1 != "Hallo, Welt!" {
-		t.Errorf("Failed translation.")
-	}
-
-	t2 := Sprintf(NGettext("An apple", "%d apples", 1), 1, "garbage")
-
-	fmt.Println(t2)
-
-	if t2 != "Ein Apfel" {
-		t.Errorf("Failed translation.")
-	}
-
-	t3 := Sprintf(NGettext("An apple", "%d apples", 3), 3)
-
-	fmt.Println(t3)
-
-	if t3 != "3 Äpfel" {
-		t.Errorf("Failed translation.")
-	}
-
-	t4 := Gettext("Good morning")
-
-	fmt.Println(t4)
-
-	if t4 != "Guten morgen" {
-		t.Errorf("Failed translation.")
-	}
-
-	t5 := Gettext("Good bye!")
-
-	fmt.Println(t5)
-
-	if t5 != "Aufwiedersehen!" {
-		t.Errorf("Failed translation.")
-	}
-
+	assert.Equal(t, "Auf Wiedersehen!", Gettext("Good bye!"))
 }
 
-func TestDGettextFallback(t *testing.T) {
-	os.Setenv("LANGUAGE", "de_DE.utf8")
+func TestFrench(t *testing.T) {
+	// Note that we don't have a french translation.
 
-	SetLocale(LC_ALL, "")
-	BindTextdomain("example", "./examples/")
-	Textdomain("example")
+	SetLocale(LcAll, frenchFrance)
 
-	t1 := DGettext("", "Hello, world!")
+	assert.Equal(t, "Hello, world!", Gettext("Hello, world!"))
 
-	fmt.Println(t1)
+	assert.Equal(t, "An apple", Sprintf(NGettext("An apple", "%d apples", 1), 1, "garbage"))
 
-	if t1 != "Hallo, Welt!" {
-		t.Errorf("Failed translation fallback.")
-	}
+	assert.Equal(t, "3 apples", Sprintf(NGettext("An apple", "%d apples", 3), 3))
 
-	t2 := Sprintf(DNGettext("", "An apple", "%d apples", 1), 1, "garbage")
+	assert.Equal(t, "Good morning", Gettext("Good morning"))
 
-	fmt.Println(t2)
-
-	if t2 != "Ein Apfel" {
-		t.Errorf("Failed translation fallback.")
-	}
-
-	t3 := Sprintf(DNGettext("", "An apple", "%d apples", 3), 3)
-
-	fmt.Println(t3)
-
-	if t3 != "3 Äpfel" {
-		t.Errorf("Failed translation fallback.")
-	}
-
+	assert.Equal(t, "Good bye!", Gettext("Good bye!"))
 }
