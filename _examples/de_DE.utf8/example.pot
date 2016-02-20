@@ -26,7 +26,7 @@ msgstr[1]       "%d Äpfel"
 
 #: gettext_test.go:56
 msgid   "Good bye!"
-msgstr  "Aufwiedersehen!"
+msgstr  "Auf Wiedersehen!"
 
 #: gettext_test.go:48
 msgid   "Good morning"
