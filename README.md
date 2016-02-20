@@ -7,6 +7,10 @@ library for writing multilingual systems.
 
 * [GNU gettext][1]
 
+### Linux
+
+Installation should be straightforward on Linux.
+
 ### OSX
 
 Installing gettext on a Mac is a bit awkward:
@@ -20,9 +24,7 @@ export CGO_CPPFLAGS=-I/usr/local/opt/gettext/include
 go get github.com/gosexy/gettext
 ```
 
-Installation should be straightforward on Linux.
-
-## Installation
+## Getting the library
 
 Use `go get` to download and install the binding:
 
