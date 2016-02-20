@@ -23,6 +23,8 @@
 package gettext
 
 /*
+// #cgo LDFLAGS: -lintl // Use this if: /usr/bin/ld: cannot find -lintl, see https://github.com/gosexy/gettext/issues/1
+
 #include <libintl.h>
 
 #include <locale.h>
