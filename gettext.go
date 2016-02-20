@@ -42,9 +42,9 @@ var (
 	// LcAll is for all of the locale.
 	LcAll = uint(C.LC_ALL)
 
-	// LcColate is for regular expression matching (it determines the meaning of
+	// LcCollate is for regular expression matching (it determines the meaning of
 	// range expressions and equivalence classes) and string collation.
-	LcColate = uint(C.LC_ALL)
+	LcCollate = uint(C.LC_COLLATE)
 
 	// LcCtype is for regular expression matching, character classification,
 	// conversion, case-sensitive comparison, and wide character functions.
@@ -62,6 +62,17 @@ var (
 
 	// LcTime is for time and date formatting.
 	LcTime = uint(C.LC_TIME)
+)
+
+// Deprecated but kept for backwards compatibility.
+var (
+	LC_ALL      = LcAll
+	LC_COLLATE  = LcCollate
+	LC_CTYPE    = LcCtype
+	LC_MESSAGES = LcMessages
+	LC_MONETARY = LcMonetary
+	LC_NUMERIC  = LcNumeric
+	LC_TIME     = LcTime
 )
 
 // SetLocale sets the program's current locale.
