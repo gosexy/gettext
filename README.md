@@ -72,7 +72,7 @@ Go program:
 ```
 go get github.com/gosexy/gettext/go-xgettext
 
-xgettext -o outfile.pot --keyword=Gettext --keyword-plural=NGettext -i infile.go
+go-xgettext -o outfile.pot --keyword=Gettext --keyword-plural=NGettext infile.go
 ```
 
 This will generate a `example.pot` file.
