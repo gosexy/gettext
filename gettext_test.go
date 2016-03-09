@@ -1,6 +1,7 @@
 package gettext
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,13 +13,16 @@ const (
 	frenchFrance       = "fr_FR.utf8"
 )
 
-func TestSpanish(t *testing.T) {
-	SetLocale(LcAll, spanishMexico)
-
+// a setUp would be nice
+func init() {
 	textDomain := "example"
-
 	BindTextdomain(textDomain, "_examples/")
 	Textdomain(textDomain)
+}
+
+func TestSpanish(t *testing.T) {
+	os.Setenv("LANGUAGE", spanishMexico)
+	SetLocale(LcAll, "")
 
 	assert.Equal(t, "¡Hola mundo!", Gettext("Hello, world!"))
 
@@ -32,7 +36,8 @@ func TestSpanish(t *testing.T) {
 }
 
 func TestDeutsch(t *testing.T) {
-	SetLocale(LcAll, deutschDeutschland)
+	os.Setenv("LANGUAGE", deutschDeutschland)
+	SetLocale(LcAll, "")
 
 	assert.Equal(t, "Hallo, Welt!", Gettext("Hello, world!"))
 
@@ -47,8 +52,8 @@ func TestDeutsch(t *testing.T) {
 
 func TestFrench(t *testing.T) {
 	// Note that we don't have a french translation.
-
-	SetLocale(LcAll, frenchFrance)
+	os.Setenv("LANGUAGE", frenchFrance)
+	SetLocale(LcAll, "")
 
 	assert.Equal(t, "Hello, world!", Gettext("Hello, world!"))
 
