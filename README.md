@@ -1,3 +1,4 @@
+[![Build Status][travis-image]][travis-url] 
 # gosexy/gettext
 
 Go bindings for [GNU gettext][1], an internationalization and localization
@@ -105,3 +106,7 @@ And here's a [good tutorial][2] on using gettext.
 
 [1]: http://www.gnu.org/software/gettext/
 [2]: http://oriya.sarovar.org/docs/gettext_single.html
+
+
+[travis-image]: https://travis-ci.org/gosexy/gettext.svg?branch=master
+[travis-url]: https://travis-ci.org/gosexy/gettext
